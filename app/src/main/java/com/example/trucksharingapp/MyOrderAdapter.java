@@ -25,12 +25,23 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.MyViewHo
     // Define variables for the context and list of order data
     private Context mContext;
     private ArrayList<MyOrderData> orderList;
+    private OnItemClickListener listener;
 
     // Constructor for MyOrderAdapter class
     public MyOrderAdapter(Context mContext, ArrayList<MyOrderData> orderList) {
         // Initialize context and list of order data
         this.mContext = mContext;
         this.orderList = orderList;
+    }
+
+    // Define interface for item click listener
+    public interface OnItemClickListener {
+        void onItemClick(MyOrderData orderData);
+    }
+
+    // Set item click listener
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     // Override onCreateViewHolder method to inflate layout for each item in RecyclerView
@@ -47,9 +58,7 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.MyViewHo
     @Override
     public void onBindViewHolder(@NonNull MyOrderAdapter.MyViewHolder holder, int position) {
         // Bind data to views in layout
-        holder.mTextView.setText(orderList.get(position).getTruckName());
-        holder.mTextViewDescription.setText(orderList.get(position).getDescription());
-        holder.imageView.setImageResource(orderList.get(position).getImage());
+        holder.bind(orderList.get(position));
     }
 
     // Override getItemCount method to return the size of the list of order data
@@ -59,7 +68,7 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.MyViewHo
     }
 
     // Define MyViewHolder class to hold layout views for each item in RecyclerView
-    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
         // Define layout views
         private TextView mTextView, mTextViewDescription;
         private ImageView imageView, shareImageView;
@@ -71,9 +80,29 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.MyViewHo
             mTextView = itemView.findViewById(R.id.nameTextView);
             mTextViewDescription = itemView.findViewById(R.id.descriptionTextView);
             imageView = itemView.findViewById(R.id.imageView);
-            // Set click listener for item view
-            itemView.setOnClickListener(this);
             shareImageView = itemView.findViewById(R.id.imageView3);
+
+            // Set click listener for item view
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION && listener != null) {
+                        listener.onItemClick(orderList.get(position));
+
+                    }
+                    // Create new OrderDetailsFragment with position and list of order data as arguments
+                    Fragment fragment = OrderDetailsFragment.newInstance(position, orderList);
+                    // Get FragmentManager from the current activity
+                    FragmentManager fragmentManager = ((AppCompatActivity) mContext).getSupportFragmentManager();
+                    // Start a new transaction to replace the current fragment with OrderDetailsFragment
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.replace(R.id.mainActivityLayout, fragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }
+            });
+
             // Set click listener for share image view
             shareImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -84,41 +113,35 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.MyViewHo
                         // Perform the share action for the clicked order
                         performShareAction(order);
                     }
+
                 }
             });
         }
 
         private void performShareAction(MyOrderData order) {
-            String shareTitle = "Title";
-            String shareDescription = "Description";
+            String shareTitle = order.getTruckName();
+            String shareDescription = order.getDescription();
+            // You can add more details from the order object as needed
 
             String shareText = shareTitle + "\n" + shareDescription;
 
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-
             Intent chooserIntent = Intent.createChooser(shareIntent, "Share via");
+
             if (shareIntent.resolveActivity(mContext.getPackageManager()) != null) {
                 mContext.startActivity(chooserIntent);
             } else {
-                Toast.makeText(mContext, "No app available to share", Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(mContext, "No app available to share", Toast.LENGTH_SHORT).show();
             }
         }
 
-        // Override onClick method to handle item click events
-        @Override
-        public void onClick(View v) {
-            // Create new OrderDetailsFragment with position and list of order data as arguments
-            Fragment fragment = OrderDetailsFragment.newInstance();
-            // Get FragmentManager from the current activity
-            FragmentManager fragmentManager = ((AppCompatActivity) mContext).getSupportFragmentManager();
-            // Start a new transaction to replace the current fragment with OrderDetailsFragment
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.mainActivityLayout, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+        // Bind data to views in layout
+        public void bind(MyOrderData orderData) {
+            mTextView.setText(orderData.getTruckName());
+            mTextViewDescription.setText(orderData.getDescription());
+            imageView.setImageResource(orderData.getImage());
         }
     }
 }

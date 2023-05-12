@@ -79,6 +79,15 @@ public class MyOrderDatabaseHelper extends SQLiteOpenHelper {
         return exists;
     }
 
+    public MyOrderData getOrderData(int position) {
+        List<MyOrderData> orderList = getAllOrders();
+        if (position >= 0 && position < orderList.size()) {
+            return orderList.get(position);
+        }
+        return null;
+    }
+
+
     public List<MyOrderData> getAllOrders() {
         List<MyOrderData> orderList = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();

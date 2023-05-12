@@ -109,7 +109,7 @@ public class NewDeliveryNextFragment extends Fragment {
 
 
                 databaseHelper = new MyOrderDatabaseHelper(getActivity());
-                MyOrderData myOrderData = new MyOrderData(getArguments().getString("pickupTime"),getArguments().getString("pickupDate"),getArguments().getString("receiverName"),getArguments().getString("pickupLocation"),vehicleType,goodType,weight,length,height,width,"2 ton truck for hire","Lion Truck2",R.drawable.truck1);
+                MyOrderData myOrderData = new MyOrderData(getArguments().getString("pickupTime"),getArguments().getString("pickupDate"),getArguments().getString("receiverName"),getArguments().getString("pickupLocation"),vehicleType,goodType,weight,length,height,width,"2 ton truck for hire","Lion Truck"+length,R.drawable.truck1);
                 long result = databaseHelper.insertOrder(myOrderData);
 
                 // Check if the insertion was successful

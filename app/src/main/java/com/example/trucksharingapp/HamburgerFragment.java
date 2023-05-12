@@ -21,12 +21,9 @@ import java.io.Serializable;
  */
 public class HamburgerFragment extends Fragment {
 
-
-
     public HamburgerFragment() {
         // Required empty public constructor
     }
-
 
     // TODO: Rename and change types and number of parameters
     public static HamburgerFragment newInstance() {
@@ -41,8 +38,7 @@ public class HamburgerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-
-
+            // Code to handle arguments if needed
         }
     }
 
@@ -50,40 +46,51 @@ public class HamburgerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view= inflater.inflate(R.layout.fragment_hamburger, container, false);
+        View view = inflater.inflate(R.layout.fragment_hamburger, container, false);
 
-
-        TextView home,account, yourOrders;
+        // Find the TextViews in the layout
+        TextView home, account, yourOrders;
         home = view.findViewById(R.id.textViewHome);
         account = view.findViewById(R.id.textviewAccount);
         yourOrders = view.findViewById(R.id.textViewYourOrders);
 
+        // Set a click listener for the 'home' TextView
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Handle click event for 'home' TextView
 
+                // Remove the current fragment from the back stack
                 requireActivity().getSupportFragmentManager().popBackStack();
+
+                // Create and replace the current fragment with HomeFragment
                 Fragment fragment = HomeFragment.newInstance();
-                // Start new transaction to replace current fragment with SignupFragment
                 FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.mainActivityLayout, fragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
-
             }
         });
 
+        // Set a click listener for the 'account' TextView
         account.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               //
-
+                // Handle click event for 'account' TextView
+                // Add your code here
             }
         });
+
+        // Set a click listener for the 'yourOrders' TextView
         yourOrders.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Handle click event for 'yourOrders' TextView
+
+                // Remove the current fragment from the back stack
                 requireActivity().getSupportFragmentManager().popBackStack();
+
+                // Create and replace the current fragment with MyOrdersFragment
                 Fragment fragment = MyOrdersFragment.newInstance();
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.popBackStackImmediate(); // Remove the current fragment from the back stack (optional)
@@ -91,11 +98,8 @@ public class HamburgerFragment extends Fragment {
                 transaction.replace(R.id.mainActivityLayout, fragment);
                 transaction.addToBackStack("MyOrdersFragment"); // Add the transaction to the back stack with a unique name
                 transaction.commit();
-
             }
         });
-
-
 
         return view;
     }

@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import sqllitehelper.MyOrderData;
+
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
@@ -93,17 +95,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             });
         }
 
-        private void performShareAction(MyDataModel truck) {
-            String shareTitle = "Title";
-            String shareDescription = "Description";
+        private void performShareAction(MyDataModel order) {
+            String shareTitle = order.getTruckName();
+            String shareDescription = order.getDescription();
+            // You can add more details from the order object as needed
 
             String shareText = shareTitle + "\n" + shareDescription;
 
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-
             Intent chooserIntent = Intent.createChooser(shareIntent, "Share via");
+
             if (shareIntent.resolveActivity(mContext.getPackageManager()) != null) {
                 mContext.startActivity(chooserIntent);
             } else {
@@ -114,15 +117,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         // Override onClick method to handle item click events
         @Override
         public void onClick(View v) {
-            // Create new NewsFragment with position and list of data models as arguments
-            Fragment fragment = OrderDetailsFragment.newInstance();
-            // Get FragmentManager from current activity
-            FragmentManager fragmentManager = ((AppCompatActivity) mContext).getSupportFragmentManager();
-            // Start new transaction to replace current fragment with NewsFragment
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.mainActivityLayout, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+//            // Create new NewsFragment with position and list of data models as arguments
+//            Fragment fragment = OrderDetailsFragment.newInstance();
+//            // Get FragmentManager from current activity
+//            FragmentManager fragmentManager = ((AppCompatActivity) mContext).getSupportFragmentManager();
+//            // Start new transaction to replace current fragment with NewsFragment
+//            FragmentTransaction transaction = fragmentManager.beginTransaction();
+//            transaction.replace(R.id.mainActivityLayout, fragment);
+//            transaction.addToBackStack(null);
+//            transaction.commit();
         }
     }
 }
