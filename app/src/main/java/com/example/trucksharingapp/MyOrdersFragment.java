@@ -18,6 +18,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import sqllitehelper.MyOrderData;
+import sqllitehelper.MyOrderDatabaseHelper;
 import sqllitehelper.RecyclerviewDatabaseHelper;
 
 /**
@@ -67,19 +69,19 @@ public class MyOrdersFragment extends Fragment {
 
         RecyclerView truckRecyclerView = view.findViewById(R.id.recyclerView4);
         RecyclerView.LayoutManager layoutManager;
-        ArrayList<MyDataModel> newsListArray;
-        MyAdapter myAdapter;
-        RecyclerviewDatabaseHelper databaseHelper;
-        databaseHelper= new RecyclerviewDatabaseHelper(getContext());
+        ArrayList<MyOrderData> newsListArray;
+        MyOrderAdapter myAdapter;
+        MyOrderDatabaseHelper databaseHelper;
+        databaseHelper= new MyOrderDatabaseHelper(getContext());
 
         newsListArray = new ArrayList<>();
-        List<MyDataModel> retrievedData = databaseHelper.getDataFromDatabase();
+        List<MyOrderData> retrievedData = databaseHelper.getAllOrders();
         newsListArray.addAll(retrievedData);
 
 
         layoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL, false);
 
-        myAdapter = new MyAdapter(getActivity(), newsListArray);
+        myAdapter = new MyOrderAdapter(getActivity(), newsListArray);
         truckRecyclerView.setAdapter(myAdapter);
         truckRecyclerView.setLayoutManager(layoutManager);
 

@@ -1,121 +1,136 @@
 package sqllitehelper;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MyOrderDatabaseHelper extends SQLiteOpenHelper {
 
-
-    private static final String DATABASE_NAME = "delivery.db";
-    private static final int DATABASE_VERSION = 1;
-    private static final String TABLE_NAME = "deliveries";
-
-    // Columns
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_PICKUP_TIME = "pickup_time";
-    private static final String COLUMN_PICKUP_DATE = "pickup_date";
-    private static final String COLUMN_RECEIVER_NAME = "receiver_name";
-    private static final String COLUMN_PICKUP_LOCATION = "pickup_location";
-    private static final String COLUMN_VEHICLE_TYPE = "vehicle_type";
-    private static final String COLUMN_GOOD_TYPE = "good_type";
-    private static final String COLUMN_WEIGHT = "weight";
-    private static final String COLUMN_LENGTH = "length";
-    private static final String COLUMN_HEIGHT = "height";
-    private static final String COLUMN_WIDTH = "width";
-    public static final String COLUMN_IMAGE = "image";
-    public static final String COLUMN_TRUCK_NAME = "truck_name";
-    public static final String COLUMN_DESCRIPTION = "description";
-
-    public MyOrderDatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    public MyOrderDatabaseHelper(@Nullable Context context) {
+        super(context, MyOrderUtil.DATABASE_NAME, null, MyOrderUtil.DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTableQuery = "CREATE TABLE " + TABLE_NAME + "("
-                + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COLUMN_PICKUP_TIME + " TEXT,"
-                + COLUMN_PICKUP_DATE + " TEXT,"
-                + COLUMN_RECEIVER_NAME + " TEXT,"
-                + COLUMN_PICKUP_LOCATION + " TEXT,"
-                + COLUMN_VEHICLE_TYPE + " TEXT,"
-                + COLUMN_GOOD_TYPE + " TEXT,"
-                + COLUMN_WEIGHT + " REAL,"
-                + COLUMN_LENGTH + " REAL,"
-                + COLUMN_HEIGHT + " REAL,"
-                + COLUMN_DESCRIPTION+ " TEXT, "
-                + COLUMN_TRUCK_NAME + " TEXT, "
-                + COLUMN_IMAGE + " TEXT,"
-                + COLUMN_WIDTH + " REAL"
-                + ")";
-        db.execSQL(createTableQuery);
+        String CREATE_TABLE =
+                "CREATE TABLE " + MyOrderUtil.TABLE_NAME + "(" +
+                        MyOrderUtil.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        MyOrderUtil.COLUMN_PICKUP_TIME + " TEXT, " +
+                        MyOrderUtil.COLUMN_PICKUP_DATE + " TEXT, " +
+                        MyOrderUtil.COLUMN_RECEIVER_NAME + " TEXT, " +
+                        MyOrderUtil.COLUMN_PICKUP_LOCATION + " TEXT, " +
+                        MyOrderUtil.COLUMN_VEHICLE_TYPE + " TEXT, " +
+                        MyOrderUtil.COLUMN_GOOD_TYPE + " TEXT, " +
+                        MyOrderUtil.COLUMN_WEIGHT + " REAL, " +
+                        MyOrderUtil.COLUMN_LENGTH + " REAL, " +
+                        MyOrderUtil.COLUMN_HEIGHT + " REAL, " +
+                        MyOrderUtil.COLUMN_WIDTH + " REAL, " +
+                        MyOrderUtil.COLUMN_DESCRIPTION + " TEXT, " +
+                        MyOrderUtil.COLUMN_TRUCK_NAME + " TEXT, " +
+                        MyOrderUtil.COLUMN_IMAGE + " INTEGER" +
+                        ")";
+        db.execSQL(CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop the table if it exists
-        String dropTableQuery = "DROP TABLE IF EXISTS " + TABLE_NAME;
-        db.execSQL(dropTableQuery);
-        // Recreate the table
+        // Drop the existing table and recreate it if the database version is updated
+        db.execSQL("DROP TABLE IF EXISTS " + MyOrderUtil.TABLE_NAME);
         onCreate(db);
     }
 
-
-    public long insertDelivery(MyOrderData delivery) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = DatabaseUtility.deliveryToContentValues(delivery);
-        return db.insert(TABLE_NAME, null, values);
-    }
-
-    @SuppressLint("Range")
-    public List<MyOrderData> getAllDeliveries() {
-        List<MyOrderData> deliveries = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
-        if (cursor.moveToFirst()) {
-            do {
-                MyOrderData delivery = new MyOrderData();
-                delivery.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
-                delivery.setPickupTime(cursor.getString(cursor.getColumnIndex(COLUMN_PICKUP_TIME)));
-                delivery.setPickupDate(cursor.getString(cursor.getColumnIndex(COLUMN_PICKUP_DATE)));
-                delivery.setReceiverName(cursor.getString(cursor.getColumnIndex(COLUMN_RECEIVER_NAME)));
-                delivery.setPickupLocation(cursor.getString(cursor.getColumnIndex(COLUMN_PICKUP_LOCATION)));
-                delivery.setVehicleType(cursor.getString(cursor.getColumnIndex(COLUMN_VEHICLE_TYPE)));
-                delivery.setGoodType(cursor.getString(cursor.getColumnIndex(COLUMN_GOOD_TYPE)));
-                delivery.setWeight(cursor.getDouble(cursor.getColumnIndex(COLUMN_WEIGHT)));
-                delivery.setLength(cursor.getDouble(cursor.getColumnIndex(COLUMN_LENGTH)));
-                delivery.setHeight(cursor.getDouble(cursor.getColumnIndex(COLUMN_HEIGHT)));
-                delivery.setDescription(cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION)));
-                delivery.setImage(cursor.getInt(cursor.getColumnIndex(COLUMN_IMAGE)));
-                delivery.setTruckName(cursor.getString(cursor.getColumnIndex(COLUMN_TRUCK_NAME)));
-                delivery.setWidth(cursor.getDouble(cursor.getColumnIndex(COLUMN_WIDTH)));
-
-                deliveries.add(delivery);
-            } while (cursor.moveToNext());
+    public long insertOrder(MyOrderData order) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        if (orderExists(db, order)) {
+            return -1; // Order already exists, return -1 indicating failure
         }
-        cursor.close();
-        return deliveries;
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MyOrderUtil.COLUMN_PICKUP_TIME, order.getPickupTime());
+        contentValues.put(MyOrderUtil.COLUMN_PICKUP_DATE, order.getPickupDate());
+        contentValues.put(MyOrderUtil.COLUMN_RECEIVER_NAME, order.getReceiverName());
+        contentValues.put(MyOrderUtil.COLUMN_PICKUP_LOCATION, order.getPickupLocation());
+        contentValues.put(MyOrderUtil.COLUMN_VEHICLE_TYPE, order.getVehicleType());
+        contentValues.put(MyOrderUtil.COLUMN_GOOD_TYPE, order.getGoodType());
+        contentValues.put(MyOrderUtil.COLUMN_WEIGHT, order.getWeight());
+        contentValues.put(MyOrderUtil.COLUMN_LENGTH, order.getLength());
+        contentValues.put(MyOrderUtil.COLUMN_HEIGHT, order.getHeight());
+        contentValues.put(MyOrderUtil.COLUMN_WIDTH, order.getWidth());
+        contentValues.put(MyOrderUtil.COLUMN_DESCRIPTION, order.getDescription());
+        contentValues.put(MyOrderUtil.COLUMN_TRUCK_NAME, order.getTruckName());
+        contentValues.put(MyOrderUtil.COLUMN_IMAGE, order.getImage());
+
+        long rowID = db.insert(MyOrderUtil.TABLE_NAME, null, contentValues);
+
+        return rowID;
     }
 
-//    private MyOrderData getDeliveryFromDatabase(int position) {
-//        MyOrderDatabaseHelper databaseHelper = new MyOrderDatabaseHelper();
-//        List<MyOrderData> deliveries = databaseHelper.getAllDeliveries();
-//
-//        // Check if the position is within the valid range
-//        if (position >= 0 && position < deliveries.size()) {
-//            return deliveries.get(position);
-//        }
-//
-//        return null;
-//    }
+    private boolean orderExists(SQLiteDatabase db, MyOrderData order) {
+        String query = "SELECT * FROM " + MyOrderUtil.TABLE_NAME + " WHERE " + MyOrderUtil.COLUMN_TRUCK_NAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{order.getTruckName()});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
 
+    public List<MyOrderData> getAllOrders() {
+        List<MyOrderData> orderList = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        String[] projection = {
+                MyOrderUtil.COLUMN_ID,
+                MyOrderUtil.COLUMN_PICKUP_TIME,
+                MyOrderUtil.COLUMN_PICKUP_DATE,
+                MyOrderUtil.COLUMN_RECEIVER_NAME,
+                MyOrderUtil.COLUMN_PICKUP_LOCATION,
+                MyOrderUtil.COLUMN_VEHICLE_TYPE,
+                MyOrderUtil.COLUMN_GOOD_TYPE,
+                MyOrderUtil.COLUMN_WEIGHT,
+                MyOrderUtil.COLUMN_LENGTH,
+                MyOrderUtil.COLUMN_HEIGHT,
+                MyOrderUtil.COLUMN_WIDTH,
+                MyOrderUtil.COLUMN_DESCRIPTION,
+                MyOrderUtil.COLUMN_TRUCK_NAME,
+                MyOrderUtil.COLUMN_IMAGE
+        };
+        Cursor cursor = db.query(
+                MyOrderUtil.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
 
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String pickupTime = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_PICKUP_TIME));
+                String pickupDate = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_PICKUP_DATE));
+                String receiverName = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_RECEIVER_NAME));
+                String pickupLocation = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_PICKUP_LOCATION));
+                String vehicleType = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_VEHICLE_TYPE));
+                String goodType = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_GOOD_TYPE));
+                double weight = cursor.getDouble(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_WEIGHT));
+                double length = cursor.getDouble(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_LENGTH));
+                double height = cursor.getDouble(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_HEIGHT));
+                double width = cursor.getDouble(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_WIDTH));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_DESCRIPTION));
+                String truckName = cursor.getString(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_TRUCK_NAME));
+                int image = cursor.getInt(cursor.getColumnIndexOrThrow(MyOrderUtil.COLUMN_IMAGE));
 
+                MyOrderData order = new MyOrderData(pickupTime, pickupDate, receiverName, pickupLocation, vehicleType, goodType, weight, length, height, width, description, truckName, image);
+                orderList.add(order);
+            }
+            cursor.close();
+        }
+
+        return orderList;
+    }
 }
+

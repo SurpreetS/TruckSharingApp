@@ -45,6 +45,8 @@ public class OrderDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_order_details, container, false);
 
 
+
+
         return view;
     }
 }

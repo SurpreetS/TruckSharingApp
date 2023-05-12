@@ -52,6 +52,16 @@ public class HomeFragment extends Fragment {
         if (getArguments() != null) {
 
         }
+        RecyclerviewDatabaseHelper databaseHelper;
+        databaseHelper= new RecyclerviewDatabaseHelper(getContext());
+
+
+        databaseHelper.insertTruck(new MyDataModel("Lion Truck", "2 ton truck for hire",R.drawable.truck1));
+        databaseHelper.insertTruck(new MyDataModel("Eastern Plant Truck", "5 ton truck for hire",R.drawable.truck6));
+        databaseHelper.insertTruck(new MyDataModel("Budget Truck", "2 ton truck for hire",R.drawable.truck2));
+        databaseHelper.insertTruck(new MyDataModel("Abel Truck", "Construction truck for hire",R.drawable.truck5));
+        databaseHelper.insertTruck(new MyDataModel("Sixt Truck", "2 ton truck for hire",R.drawable.truck3));
+        databaseHelper.insertTruck(new MyDataModel("Budget Truck", "Pallet ton truck for hire",R.drawable.truck4));
     }
 
     @Override
@@ -72,14 +82,6 @@ public class HomeFragment extends Fragment {
         newsListArray = new ArrayList<>();
         RecyclerviewDatabaseHelper databaseHelper;
         databaseHelper= new RecyclerviewDatabaseHelper(getContext());
-
-
-        databaseHelper.insertTruck(new MyDataModel("Lion Truck", "2 ton truck for hire",R.drawable.truck1));
-        databaseHelper.insertTruck(new MyDataModel("Eastern Plant Truck", "5 ton truck for hire",R.drawable.truck6));
-        databaseHelper.insertTruck(new MyDataModel("Budget Truck", "2 ton truck for hire",R.drawable.truck2));
-        databaseHelper.insertTruck(new MyDataModel("Abel Truck", "Construction truck for hire",R.drawable.truck5));
-        databaseHelper.insertTruck(new MyDataModel("Sixt Truck", "2 ton truck for hire",R.drawable.truck3));
-        databaseHelper.insertTruck(new MyDataModel("Budget Truck", "Pallet ton truck for hire",R.drawable.truck4));
 
         List<MyDataModel> retrievedData = databaseHelper.getDataFromDatabase();
         newsListArray.addAll(retrievedData);
